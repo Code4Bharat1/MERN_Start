@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        // Wait until the DOM is loaded
+        window.onload = function() {
+            const pass = document.getElementById("password");
+            const id = document.getElementById("thisisuser");
+
+            // Get the button and form elements
+            const submitbutn = document.getElementById("submithtebutton");
+
+            // Define the function to be called on form submission
+            function submittheform() {
+                const username = id.value;
+                const password = pass.value;
+
+                if (!(username == "junedtest")) {
+                    console.log("False error boom");
+                }
+                else if (!(password == "1234")) {
+                    console.log("False error BOOOOOOOOOOOm");
+                }
+
+                const response =  fetch("http://localhost:5500/api/student/login")
+
+                console.log(response.json)
+            }
+
+            // Attach event listener for the click event
+            submitbutn.addEventListener('click', submittheform);
+        };
+    </script>
+</head>
+<body>
+    <div>
+        <input type="text" id="thisisuser">
+        <input type="password" id="password">
+        <button type="submit" id="submithtebutton">Submit</button>
+    </div>
+</body>
+</html>
