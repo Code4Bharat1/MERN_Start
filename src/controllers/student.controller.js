@@ -1,48 +1,65 @@
-import { database,dbRef, push } from "../db/db.config.js"
+import { database, dbRef, push } from "../db/db.config.js";
 
+// Dummy user for login simulation (Replace with DB query in real-world use)
+// const storedUser = {
+//     id: "juned khan",
+//     passwordHash: bcrypt.hashSync("ABCDEF1234", 10) // Hashed password
+// };
 
-const login = async(req,res)=>{
+// // JWT Secret Key (Use env variables in production)
+// const JWT_SECRET = "your_jwt_secret";
 
+// // Login Function
+const login = async (req, res) => {
+    try {
+        const { id, password } = req.body;
 
-    const data = req.body
+        if (!id || !password) {
+            return res.status(400).json({ error: "ID and password are required" });
+        }
 
-    if(!(data.id && data.password)){
-        return res.status(402).json("Id or password required")
+        if (storedUser.id !== id) {
+            return res.status(401).json({ error: "Invalid ID or password" });
+        }
+
+        const isPasswordValid = bcrypt.compareSync(password, storedUser.passwordHash);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: "Invalid ID or password" });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ id: storedUser.id }, JWT_SECRET, { expiresIn: "1h" });
+
+        return res.status(200).json({ message: "Login successful", token });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal Server Error" });
     }
+};
 
+// Register Function
+const register = async (req, res) => {
+    try {
+        const { id, password } = req.body;
 
-    const id = "juned khan"
-    const password = "ABCDEF1234"
+        if (!id || !password) {
+            return res.status(400).json({ error: "ID and password are required" });
+        }
 
-    if(!(id==data.id)){
-        return res.status(400).json("id is not maching give me new id")
+        if (password.length < 6) {
+            return res.status(400).json({ error: "Password must be at least 6 characters long" });
+        }
+
+        // Hash the password
+
+        // Save user data
+        const userData = { id, password };
+        const userRef = dbRef(database, "/students");
+        const newUserRef = push(userRef, userData);
+
+        return res.status(201).json({ message: "User registered successfully", userId: newUserRef.key });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal Server Error" });
     }
+};
 
-    if(!(password==data.password)){
-        return res.status(400).json("password is not maching give me new id")
-    }
-
-    //login logic return web token 
-
-    return res.status(200).json(`login successfully for user ${data.id}`)
-
-
-}
-
-
-const register = async(req,res)=>{
-    
-    //validation of username and passwrod 
-    const userdata = req.body
-
-    const thisisref = dbRef(database,"/student")
-
-
-    const afterpushthisisref = push(thisisref,userdata)
-
-    return res.status(200).json(afterpushthisisref)
-
-}
-
-
-export {register, login} 
+export { register, login };
